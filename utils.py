@@ -34,11 +34,25 @@ class CsvTools:
         csv_writer = csv.writer(file)
         return csv_writer
 
+    @staticmethod
+    def sort_row_by(field_name: str, rows: list) -> list:
+        if field_name not in rows[0]:
+            raise ValueError(f'There is "{field_name}" field in rows')
+        col = rows[0].index(field_name)
+        sorted_col = sorted([field[col] for field in rows])
+        sorted_rows = []
+        for field_value in sorted_col:
+            for row in rows:
+                if field_value in row:
+                    sorted_rows += [row]
+                    break
+        return sorted_rows
+
 
 def clean_logs():
     if os.path.exists('logs.txt'):
         os.remove('logs.txt')
 
 
-def script_place(magic_file):
+def script_place(magic_file) -> str:
     return os.path.dirname(magic_file) + '/'

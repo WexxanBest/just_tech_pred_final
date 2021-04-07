@@ -56,9 +56,7 @@ def generator(students: list, courses_name: list = None, headers: list = None):
         for group_type in group_types:
             print(f'COURSE: {course} ({group_type} group type)')
 
-            writer = CsvTools.csv_writer(script_place(__file__) + 'generated_students/' + '_'.join(course.split())
-                                         + '_' + group_type + '.csv')
-            writer.writerow(headers)
+            students_rows = [] + headers
 
             for _ in range(rd.randint(10, 25)):  # the amount of students in a group
 
@@ -75,8 +73,13 @@ def generator(students: list, courses_name: list = None, headers: list = None):
                     student_row += [generate_points(group_type, last_student_score=last_point)]
                     print(f'{header}:', student_row[-1])
 
-                writer.writerow(student_row)
+                students_rows += [student_row]
                 print()
+
+            CsvTools.csv_write_rows(
+                script_place(__file__) + 'generated_students/' + '_'.join(course.split()) + '_' + group_type + '.csv',
+                CsvTools.sort_row_by('id', students_rows)
+            )
 
 
 if __name__ == '__main__':

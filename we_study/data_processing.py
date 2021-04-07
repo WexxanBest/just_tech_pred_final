@@ -8,7 +8,11 @@ from pprint import pprint
 from utils import (CsvTools, logger, script_place)
 
 
-def main():
+def get_user_courses():
+    """
+    It
+    :return: nothing
+    """
     students = {}
     courses = []
     files = os.listdir(script_place(__file__) + 'generated_students/')
@@ -17,7 +21,7 @@ def main():
             continue
 
         students_of_course = CsvTools.csv_read_rows(script_place(__file__) + 'generated_students/' + file)[1:]
-        students_ids = [id[0] for id in students_of_course]
+        students_ids = sorted([id[0] for id in students_of_course])
         course_name = ' '.join(file.split('_')[:-1])
 
         if course_name not in courses:
@@ -47,4 +51,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    get_user_courses()

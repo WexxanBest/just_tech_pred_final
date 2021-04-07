@@ -30,8 +30,9 @@ drive_service = apiclient.discovery.build('drive', 'v3', http=httpAuth)
 class Spreadsheet:
     """
     That class provides with basic functions to work with google sheets. It can:
-        - Create new spreadsheet or connect to existed one
-        -
+        - Create new spreadsheet or connect to existed ones
+        - Get, update, clear data of the spreadsheet
+        - Add/delete sheets
     """
     def __init__(self, spreadsheet_id=None):
         if spreadsheet_id is None:
@@ -77,28 +78,41 @@ class Spreadsheet:
     def grant_permission(self, email_address: str, role: str = 'writer'):
         self.check_id_was_provided()
 
-        access = drive_service.permissions().create(
-            fileId=self.spreadsheetId,
-            body={'type': 'user', 'role': role, 'emailAddress': email_address},
-            fields='id'
-        ).execute()
+        try:
+            access = drive_service.permissions().create(
+                fileId=self.spreadsheetId,
+                body={'type': 'user', 'role': role, 'emailAddress': email_address},
+                fields='id'
+            ).execute()
+        except:
+            logging.error('Error occurred!', exc_info=True)
+            raise Exception("Can't grant permission. See logs.txt for more information")
+
+        logging.info(access)
 
     def get_data_by_range(self, range_name, dimension: str = "ROWS", value_render_option: str = 'FORMATTED_VALUE',
-                          date_time_render_option: str = 'SERIAL_NUMBER'):
+                          date_time_render_option: str = 'SERIAL_NUMBER', sheet_name: str = None):
 
         self.check_id_was_provided()
 
-        result = sheets_service.spreadsheets().values().get(
-            spreadsheetId=self.spreadsheetId,
-            majorDimension=dimension.upper(),
-            range=range_name,
-            valueRenderOption=value_render_option,
-            dateTimeRenderOption=date_time_render_option
-        ).execute()
+        if sheet_name:
+            range_name += f'{sheet_name}!{range_name}'
+
+        try:
+            result = sheets_service.spreadsheets().values().get(
+                spreadsheetId=self.spreadsheetId,
+                majorDimension=dimension.upper(),
+                range=range_name,
+                valueRenderOption=value_render_option,
+                dateTimeRenderOption=date_time_render_option
+            ).execute()
+        except:
+            logging.error('Error occurred', exc_info=True)
+            raise Exception("Can't data. See logs.txt for more information")
 
         rows = result.get('values', [])
 
-        print(f'{len(rows)} rows retrieved.')
+        logging.info(f'{len(rows)} rows retrieved.')
         return rows
 
     def update_data(self, data: list, range_name: str, value_input_option: str = 'USER_ENTERED'):
@@ -209,6 +223,7 @@ class SpreadsheetManager:
             raise TypeError(f'expected {type(Spreadsheet())}, but got {type(spreadsheet)}')
 
     def upload_csv(self, csv_file, left_corner_cell='A1', sheet_name=None, create_new_sheet=False):
+
         if create_new_sheet:
             self.spreadsheet.add_sheet(title=sheet_name)
 

@@ -22,7 +22,7 @@ class API:
         }
 
     # Getting list of all courses
-    def get_courses(self, cache=True):
+    def get_courses(self, cache=True) -> list:
         url = 'https://userapi.webinar.ru/v3/organization/courses'
         res = self._get_request(url, cache_filename='courses.json', use_cache=cache)
         return res['data']
@@ -31,10 +31,11 @@ class API:
     def get_groups(self, cache=True):
         url = 'https://userapi.webinar.ru/v3/organization/courses/groups'
         res = self._get_request(url, cache_filename='groups.json', use_cache=cache)
-        pprint(res)
+
+        return res
 
     # Getting information about course
-    def get_course_details(self, course_id: int, cache=True):
+    def get_course_details(self, course_id: int, cache=True) -> dict:
         url = f'https://userapi.webinar.ru/v3/courses/{course_id}'
         res = self._get_request(url, use_cache=cache, cache_filename=f'course-{course_id}.json')
 
@@ -48,18 +49,20 @@ class API:
     def get_user_stat(self, user_id: int):
         url = f'https://userapi.webinar.ru/v3/organization/users/{user_id}/statistics'
         res = self._get_request(url)
-        pprint(res)
+
+        return res
 
     def get_user_id(self, contact_id: int) -> int:
         url = f'https://userapi.webinar.ru/v3/contacts/{contact_id}/user'
         res = self._get_request(url)
-        pprint(res)
+
         return res['id']
 
     def get_course_group_stat(self, course_id: int, group_id: int, cache=True):
         url = f'https://userapi.webinar.ru/v3/courses/{course_id}/groups/{group_id}/statistics'
         res = self._get_request(url, use_cache=cache, cache_filename=f'course-{course_id}-group-{group_id}.json')
-        pprint(res)
+
+        return res
 
     # Main function that
     def _get_request(self, url: str,
@@ -115,3 +118,12 @@ class API:
         files = os.listdir(folder)
         for file in files:
             os.remove(folder + file)
+
+
+class ApiManager(API):
+    """
+    Class provides easy-to-use methods to work with API class which work with We Study API
+    """
+    def __init__(self, api_token: str):
+        super().__init__(api_token)
+

@@ -86,7 +86,5 @@ if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
 
-    # clean_sheets()
-    # load_gen_students_to_spreadsheet()
-    spreadsheet.add_sheet(title='Students')
+    # spreadsheet.add_sheet(title='Students')
     manager.upload_csv('we_study/data/students_at_courses.csv', sheet_name='Students')
