@@ -1,8 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Main file
+"""
 from pprint import pprint
 import os
 
 from google_sheets.google_sheets import (Spreadsheet, SpreadsheetManager, Types)
 from we_study.api import (API)
+from we_study.student_generator import generator
 
 API_KEY = 'b540bd407852678c0af5b11105dcde14'
 SPREADSHEET_ID = '17bYk2QPRsuW6cP5kBpKzU5h6aE_RS1Vw1LPadnII0ms'
@@ -13,7 +18,6 @@ def spreadsheet_test():
         ['DOG', 3],
         [2, 1]
     ]
-    spreadsheet = Spreadsheet(SPREADSHEET_ID)
 
     print(spreadsheet.get_data_by_range('A1:B2'))
 
@@ -65,7 +69,10 @@ def load_gen_students_to_spreadsheet():
 
 def clean_sheets():
     for i in range(1, 12):
-        spreadsheet.delete_sheet(i)
+        try:
+            spreadsheet.delete_sheet(i)
+        except:
+            pass
 
     spreadsheet.clear_data('A1:F100')
 
@@ -74,5 +81,5 @@ if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
 
-    # clean_sheets()
+    clean_sheets()
     load_gen_students_to_spreadsheet()

@@ -1,4 +1,7 @@
-from pprint import pprint
+# -*- coding: utf-8 -*-
+"""
+That module provides class and functions to work with Google Sheets API
+"""
 import os
 
 import apiclient
@@ -26,7 +29,9 @@ drive_service = apiclient.discovery.build('drive', 'v3', http=httpAuth)
 
 class Spreadsheet:
     """
-    That class provides with basic functions to work with google sheets
+    That class provides with basic functions to work with google sheets. It can:
+        - Create new spreadsheet or connect to existed one
+        -
     """
     def __init__(self, spreadsheet_id=None):
         if spreadsheet_id is None:

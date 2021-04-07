@@ -1,21 +1,43 @@
+# -*- coding: utf-8 -*-
+"""
+That module provides class and functions to generate students with defined parameters to illustrate different
+kind of groups of some courses
+"""
 import random as rd
 
-from utils import CsvTools
+from utils import (CsvTools, logger)
 
-headers = ['id', 'lesson_completion', 'webinar_completion', 'test_completion', 'average_points_for_tests']
+default_headers = ['id', 'lesson_completion', 'webinar_completion', 'test_completion', 'average_points_for_tests']
 group_types = ['bad', 'good', 'excellent', 'mixed']
-courses_name = ['Русский язык Гр1', 'Математика Гр1', 'Математика Гр2']
+default_courses_name = ['Русский язык Гр1', 'Математика Гр1', 'Математика Гр2']
 
 
-def generate_points(group_type):
+def generate_points(group_type, last_student_score: int = None, bad_results: tuple = (0, 50),
+                    good_results: tuple = (50, 85), excellent_results: tuple = (85, 100)):
+
     if group_type == 'bad':
-        return rd.randint(0, 50)
+        return rd.randint(*bad_results)
     elif group_type == 'good':
-        return rd.randint(50, 85)
+        return rd.randint(*good_results)
     elif group_type == 'excellent':
-        return rd.randint(85, 100)
+        return rd.randint(*excellent_results)
+
     elif group_type == 'mixed':
-        return rd.choice([rd.randint(0, 25), rd.randint(75, 100)])
+        worse_result = (0, 15)
+        average_result = (15, 90)
+        excellent_result = (90, 100)
+
+        if last_student_score:
+            if last_student_score in list(range(*worse_result)):
+                return rd.randint(*worse_result)
+            elif last_student_score in list(range(*average_result)):
+                return rd.randint(*average_result)
+            else:
+                return rd.randint(*excellent_result)
+
+        return rd.choice([rd.randint(*worse_result),
+                          rd.randint(*average_result),
+                          rd.randint(*excellent_result)])
 
 
 def generate_student_id(used_ids: list, all_students_ids: list) -> int:
@@ -23,8 +45,12 @@ def generate_student_id(used_ids: list, all_students_ids: list) -> int:
     return rd.choice(list(available_ids))
 
 
-def main():
-    students = list(range(100))
+def generator(students: list, courses_name: list = None, headers: list = None):
+    if courses_name is None:
+        courses_name = default_courses_name
+    if headers is None:
+        headers = default_headers
+
     for course in courses_name:
         already_in_group = []
         for group_type in group_types:
@@ -42,7 +68,10 @@ def main():
                 print('STUDENT ID:', student_id)
 
                 for header in headers[1:]:
-                    student_row += [generate_points(group_type)]
+                    last_point = None
+                    if len(student_row) > 1:
+                        last_point = student_row[1]
+                    student_row += [generate_points(group_type, last_student_score=last_point)]
                     print(f'{header}:', student_row[-1])
 
                 writer.writerow(student_row)
@@ -50,4 +79,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    students = list(range(100))
+    generator(students=students)
