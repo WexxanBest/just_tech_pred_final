@@ -156,7 +156,6 @@ class ApiManager(API):
         for course in self.courses:
             for group_id in course.groups_id:
                 structure = self.get_course_group_stat(course.id, group_id)
-                pprint(structure)
                 lessons_data = structure[0]['lessonsPassing']
                 for lesson in lessons_data:
                     course.lessons += [Lesson(lesson['type'],
@@ -186,5 +185,5 @@ if __name__ == '__main__':
         print(f'{course.id=}', f'{course.name=}', f'{course.groups_id=}', sep='\n')
         print('\nLESSONS')
         for lesson in course.lessons:
-            print(f'\n{lesson.lesson_id=}', f'{lesson.name}', f'{lesson.lesson_type}', sep='\n')
+            print(f'\n{lesson.lesson_id=}', f'{lesson.name=}', f'{lesson.lesson_type=}', sep='\n')
 
