@@ -9,7 +9,7 @@ import os
 
 import requests as rq
 
-from utils import (CsvTools, script_place)
+from utils import (CsvTools, script_place, logger)
 
 
 class API:
@@ -178,12 +178,17 @@ class Lesson:
         self.lesson_id = lesson_id
 
 
+class Student:
+    def __init__(self):
+        pass
+
+
 if __name__ == '__main__':
     api = ApiManager('b540bd407852678c0af5b11105dcde14')
     for course in api.courses:
         print('COURSE DETAILS')
         print(f'{course.id=}', f'{course.name=}', f'{course.groups_id=}', sep='\n')
-        print('\nLESSONS')
+        print('\nCOURSE LESSONS')
         for lesson in course.lessons:
             print(f'\n{lesson.lesson_id=}', f'{lesson.name=}', f'{lesson.lesson_type=}', sep='\n')
 

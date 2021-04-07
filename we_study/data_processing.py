@@ -11,7 +11,7 @@ from utils import (CsvTools, logger, script_place)
 def get_user_courses():
     """
     It
-    :return: nothing
+
     """
     students = {}
     courses = []
@@ -33,21 +33,21 @@ def get_user_courses():
             else:
                 students[student_id] += [course_name]
 
-    pprint(students)
-
-    writer = CsvTools.csv_writer(script_place(__file__) + 'data/students_at_courses.csv')
     headers = ['id'] + courses
-    writer.writerow(headers)
+    rows = [headers]
 
     for student_id in students:
-        student_row = [student_id]
+        student_row = [int(student_id)]
         for course in courses:
             if course in students[student_id]:
                 student_row += [True]
             else:
                 student_row += [False]
 
-        writer.writerow(student_row)
+        rows += [student_row]
+
+    CsvTools.csv_write_rows(script_place(__file__) + 'data/students_at_courses.csv',
+                            rows=CsvTools.sort_rows_by(field_name='id', rows=rows))
 
 
 if __name__ == '__main__':

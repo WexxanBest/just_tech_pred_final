@@ -87,4 +87,4 @@ if __name__ == '__main__':
     manager = SpreadsheetManager(spreadsheet)
 
     # spreadsheet.add_sheet(title='Students')
-    # manager.upload_csv('we_study/data/students_at_courses.csv', sheet_name='Students')
+    manager.upload_csv('we_study/data/students_at_courses.csv', sheet_name='Students')

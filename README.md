@@ -24,4 +24,11 @@ All dependencies can be installed by prompting:
 
 ## Project structure
 
-In `/test` folder there are scripts with  
+- `main.py` script contains main functions to call all project methods
+- `utils.py` script contains additional functions which provide other modules with useful functional
+- `Dockerfile` is used to create docker image of a project to easily deploy it
+- In `/google_sheets` folder there are scripts to work with Google Sheets API (`google_sheets.py`)
+- In `/test` folder there are scripts with unit-tests and test data to make them work
+- In `we_study` folder there are scripts to work with We Study API
+  (`api.py`) and process obtained data (`data_processing.py`, 
+  `student_generator.py`) 

@@ -78,7 +78,7 @@ def generator(students: list, courses_name: list = None, headers: list = None):
 
             CsvTools.csv_write_rows(
                 script_place(__file__) + 'generated_students/' + '_'.join(course.split()) + '_' + group_type + '.csv',
-                CsvTools.sort_row_by('id', students_rows)
+                CsvTools.sort_rows_by('id', students_rows)
             )
 
 

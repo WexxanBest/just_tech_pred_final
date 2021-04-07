@@ -43,6 +43,11 @@ class Spreadsheet:
         self.sheet_list = []
 
     def create_spreadsheet(self, sheets=None):
+        """
+        It creates spreadsheet
+
+        :param sheets: list of sheets properties to create with spreadsheet creation
+        """
         if sheets is None:
             sheets = [{'properties': {'sheetType': 'GRID', 'sheetId': 0}}]
 
@@ -57,6 +62,11 @@ class Spreadsheet:
         return self
 
     def get_spreadsheet_by_id(self, spreadsheet_id: str):
+        """
+        It connects to Google Sheet spreadsheet by its Spreadsheet ID
+
+        :param spreadsheet_id: id of Google Sheet spreadsheet
+        """
         self.spreadsheetId = spreadsheet_id
         self.check_connection()
 
@@ -64,6 +74,11 @@ class Spreadsheet:
         return self
 
     def get_spreadsheet_by_url(self, sheet_url: str):
+        """
+        It connects to Google Sheet spreadsheet by its url. It just retrieves Spreadsheet ID from url
+
+        :param sheet_url: url of Google Sheet spreadsheet
+        """
         sheet_url_list = sheet_url.split('/')
         if 'd' not in sheet_url_list:
             raise ValueError('wrong url. Should be like https://docs.google.com/spreadsheets/d/{spreadsheet_id}')
@@ -76,6 +91,12 @@ class Spreadsheet:
         return self
 
     def grant_permission(self, email_address: str, role: str = 'writer'):
+        """
+        It give access to user to deal with Spreadsheet
+
+        :param email_address: user email address
+        :param role: could be 'writer' or 'reader'. Default is 'writer'
+        """
         self.check_id_was_provided()
 
         try:
@@ -92,6 +113,20 @@ class Spreadsheet:
 
     def get_data_by_range(self, range_name, dimension: str = "ROWS", value_render_option: str = 'FORMATTED_VALUE',
                           date_time_render_option: str = 'SERIAL_NUMBER', sheet_name: str = None):
+        """
+        It gets data of certain range of cells of in a certain sheet
+
+        :param range_name: can be like 'A1:B2'
+        :param dimension: can be 'ROWS' or 'COLUMNS'.
+        If 'ROWS' was given, it will get data row by row;
+        if 'COLUMNS' was given, it will get data column by column.
+
+        :param value_render_option:
+        :param date_time_render_option:
+        :param sheet_name: name of sheet to get data from
+
+        :return: rows of data
+        """
 
         self.check_id_was_provided()
 
@@ -108,37 +143,65 @@ class Spreadsheet:
             ).execute()
         except:
             logging.error('Error occurred', exc_info=True)
-            raise Exception("Can't data. See logs.txt for more information")
+            raise Exception("Can't get data. See logs.txt for more information")
 
         rows = result.get('values', [])
 
         logging.info(f'{len(rows)} rows retrieved.')
+        print(f'{len(rows)} rows retrieved.')
         return rows
 
     def update_data(self, data: list, range_name: str, value_input_option: str = 'USER_ENTERED'):
+        """
+        It updates data in certain range of cells in certain sheet
+
+        :param data: data to load. Should be like list of lists, row by row
+        :param range_name: can be like "A1:B2" or "sheet_name!A1:B2"
+        :param value_input_option: can be 'USER_ENTERED' or 'RAW'. First one will show cells like if user entered them,
+        so, for example, '=5+3' would be just '8'. While 'RAW' mode will show like it is: '=5+3'
+        """
         self.check_id_was_provided()
 
         values = data
         body = {
             'values': values
         }
-        result = sheets_service.spreadsheets().values().update(
-            spreadsheetId=self.spreadsheetId,
-            range=range_name,
-            valueInputOption=value_input_option,
-            body=body).execute()
+        try:
+            result = sheets_service.spreadsheets().values().update(
+                spreadsheetId=self.spreadsheetId,
+                range=range_name,
+                valueInputOption=value_input_option,
+                body=body).execute()
+        except:
+            logging.error('Exception occurred', exc_info=True)
+            raise Exception("Can't update data. See logs.txt ")
 
         print(f'{result.get("updatedCells")} cells updated.')
 
     def clear_data(self, range_name: str):
-        request = sheets_service.spreadsheets().values().clear(
-            spreadsheetId=self.spreadsheetId,
-            range=range_name,
-            body={}
-        )
-        response = request.execute()
+        """
+        It clears data in certain range of cells in certain sheet
+
+        :param range_name: can be like "A1:B2" or "sheet_name!A1:B2"
+        """
+        try:
+            request = sheets_service.spreadsheets().values().clear(
+                spreadsheetId=self.spreadsheetId,
+                range=range_name,
+                body={}
+            )
+            response = request.execute()
+            logging.info(response)
+        except:
+            logging.error('Exception occurred', exc_info=True)
+            raise Exception("Can't clear data. See logs.txt for more information")
 
     def add_sheet(self, title=None):
+        """
+        It creates a new sheet.
+
+        # :param title: if it's not provided, sheet title would be generated automatically
+        """
         self.update_sheet_list()
 
         if title is None:
@@ -160,6 +223,11 @@ class Spreadsheet:
         self.update_sheet_list()
 
     def delete_sheet(self, sheet_id: int):
+        """
+        It deletes sheet from Spreadsheet
+
+        :param sheet_id: id of concrete sheet
+        """
         self.update_sheet_list()
 
         for sheet in self.sheet_list:
@@ -184,19 +252,35 @@ class Spreadsheet:
         self.update_sheet_list()
 
     def update_sheet_list(self):
+        """
+        It updates list of sheets with their information
+        """
         spreadsheet = sheets_service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
         sheet_list = spreadsheet.get('sheets')
         self.sheet_list = sheet_list
 
     def check_id_was_provided(self):
+        """
+        It will raise a Value Error, if Spreadsheet ID was not provided
+        """
         if not self.spreadsheetId:
             raise ValueError('Spreadsheet ID was not provided!')
 
     def check_connection(self):
+        """
+        It will raise a Connection Error, if can't connect to Spreadsheet. Otherwise, it will just pass.
+        """
         if not self.is_connected():
             raise ConnectionError("Sheet is not connected. See logs.txt for more info")
 
     def is_connected(self):
+        """
+        Check if it can get sheets of given Spreadsheet. There is at least one sheet in any Spreadsheet, so it is a good
+        way to check connection. If it raise some error, it will mean that wrong Spreadsheet ID was given or there is
+        a some HTTP error or some other error.
+
+        :return: True if can connect to Spreadsheet. Otherwise it returns False
+        """
         try:
             spreadsheet = sheets_service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
             sheet_list = spreadsheet.get('sheets')
@@ -223,7 +307,15 @@ class SpreadsheetManager:
             raise TypeError(f'expected {type(Spreadsheet())}, but got {type(spreadsheet)}')
 
     def upload_csv(self, csv_file, left_corner_cell='A1', sheet_name=None, create_new_sheet=False):
+        """
+        It is upload a csv file to Google Sheet spreadsheet. It just updates cells
 
+        :param csv_file: relative or absolute path to csv file
+        :param left_corner_cell: cell name to start creating the table in sheet
+        :param sheet_name: name of sheet to upload csv to. If sheet doesn't exist it will raise error. Default is None
+        :param create_new_sheet: if True, it will create a new sheet with "sheet_name" name. If sheet already exists
+        it will raise an error. Default is False
+        """
         if create_new_sheet:
             self.spreadsheet.add_sheet(title=sheet_name)
 
