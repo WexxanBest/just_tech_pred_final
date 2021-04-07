@@ -208,12 +208,18 @@ class SpreadsheetManager:
         else:
             raise TypeError(f'expected {type(Spreadsheet())}, but got {type(spreadsheet)}')
 
-    def upload_csv(self, csv_file, left_corner_cell='A1', sheet_name=None):
+    def upload_csv(self, csv_file, left_corner_cell='A1', sheet_name=None, create_new_sheet=False):
+        if create_new_sheet:
+            self.spreadsheet.add_sheet(title=sheet_name)
+
         rows = CsvTools.csv_read_rows(csv_file)
         rows_amount, col_amount = len(rows), len(rows[0])
+
         range_name = self._get_range(left_corner_cell, rows_amount, col_amount)
+
         if sheet_name:
             range_name = f'{sheet_name}!{range_name}'
+
         self.spreadsheet.update_data(rows, range_name)
 
     @staticmethod

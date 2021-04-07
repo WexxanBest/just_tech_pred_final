@@ -21,12 +21,11 @@ class CsvTools:
             csv_writer.writerows(rows)
 
     @staticmethod
-    def csv_read_rows(file: str):
+    def csv_read_rows(file: str) -> list:
         rows = []
         with open(file, encoding='utf-8') as csv_file:
             csv_reader = csv.reader(csv_file)
-            for row in csv_reader:
-                rows += [row]
+            rows += csv_reader
         return rows
 
     @staticmethod
@@ -39,3 +38,7 @@ class CsvTools:
 def clean_logs():
     if os.path.exists('logs.txt'):
         os.remove('logs.txt')
+
+
+def script_place(magic_file):
+    return os.path.dirname(magic_file) + '/'

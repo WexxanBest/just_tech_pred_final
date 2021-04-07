@@ -5,7 +5,7 @@ kind of groups of some courses
 """
 import random as rd
 
-from utils import (CsvTools, logger)
+from utils import (CsvTools, logger, script_place)
 
 default_headers = ['id', 'lesson_completion', 'webinar_completion', 'test_completion', 'average_points_for_tests']
 group_types = ['bad', 'good', 'excellent', 'mixed']
@@ -56,7 +56,8 @@ def generator(students: list, courses_name: list = None, headers: list = None):
         for group_type in group_types:
             print(f'COURSE: {course} ({group_type} group type)')
 
-            writer = CsvTools.csv_writer('generated_students/' + '_'.join(course.split()) + '_' + group_type + '.csv')
+            writer = CsvTools.csv_writer(script_place(__file__) + 'generated_students/' + '_'.join(course.split())
+                                         + '_' + group_type + '.csv')
             writer.writerow(headers)
 
             for _ in range(rd.randint(10, 25)):  # the amount of students in a group

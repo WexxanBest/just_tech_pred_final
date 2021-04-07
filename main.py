@@ -59,11 +59,16 @@ def load_gen_students_to_spreadsheet():
     student_files.pop(0)
 
     for student_file in student_files:
+        if not student_file.endswith('.csv'):
+            continue
+
         sheet_name = student_file[:-4]
+
         try:
             spreadsheet.add_sheet(title=sheet_name)
         except:
             pass
+
         manager.upload_csv(folder + student_file, sheet_name=sheet_name)
 
 
@@ -81,5 +86,7 @@ if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
 
-    clean_sheets()
-    load_gen_students_to_spreadsheet()
+    # clean_sheets()
+    # load_gen_students_to_spreadsheet()
+    spreadsheet.add_sheet(title='Students')
+    manager.upload_csv('we_study/data/students_at_courses.csv', sheet_name='Students')
