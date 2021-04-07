@@ -1,4 +1,4 @@
-we_study/cache
+we_study/cache/*.json
 logs.txt
 we_study/generated_students
-we_study/data/*
+we_study/data/*.csv

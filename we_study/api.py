@@ -68,6 +68,7 @@ class API:
                      use_cache: bool = True,
                      cache_filename: str = '') -> Union[dict, rq.Response]:
 
+        print(__file__ + '/cache/' + cache_filename, os.path.exists(os.path.dirname(__file__) + '/cache/' + cache_filename))
         # load from cache if exist and it is allowed to use cache (use_cache = True)
         if json_frm and use_cache and cache_filename and \
                 os.path.exists(os.path.dirname(__file__) + '/cache/' + cache_filename):

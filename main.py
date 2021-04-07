@@ -46,5 +46,5 @@ def we_study_test():
 
 
 if __name__ == '__main__':
-    # we_study_test()
+    we_study_test()
     spreadsheet_test()
