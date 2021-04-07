@@ -1,4 +1,5 @@
 from pprint import pprint
+import os
 
 from google_sheets.google_sheets import (Spreadsheet, SpreadsheetManager, Types)
 from we_study.api import (API)
@@ -45,6 +46,33 @@ def we_study_test():
     api.get_user_stat(api.get_user_id(contact_id))
 
 
+def load_gen_students_to_spreadsheet():
+    folder = 'we_study/generated_students/'
+
+    student_files = os.listdir(folder)
+
+    manager.upload_csv(folder + student_files[0])
+    student_files.pop(0)
+
+    for student_file in student_files:
+        sheet_name = student_file[:-4]
+        try:
+            spreadsheet.add_sheet(title=sheet_name)
+        except:
+            pass
+        manager.upload_csv(folder + student_file, sheet_name=sheet_name)
+
+
+def clean_sheets():
+    for i in range(1, 12):
+        spreadsheet.delete_sheet(i)
+
+    spreadsheet.clear_data('A1:F100')
+
+
 if __name__ == '__main__':
-    we_study_test()
-    spreadsheet_test()
+    spreadsheet = Spreadsheet(SPREADSHEET_ID)
+    manager = SpreadsheetManager(spreadsheet)
+
+    # clean_sheets()
+    load_gen_students_to_spreadsheet()

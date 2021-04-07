@@ -120,7 +120,7 @@ class Spreadsheet:
         response = request.execute()
 
     def add_sheet(self, title=None):
-        self.get_sheets()
+        self.update_sheet_list()
 
         if title is None:
             title = "Sheet" + str(len(self.sheet_list) + 1)
@@ -128,19 +128,46 @@ class Spreadsheet:
         body = {'requests': [
                 {"addSheet": {"properties": {'sheetId': len(self.sheet_list), 'title': title}}}]}
 
-        sheet = sheets_service.spreadsheets().batchUpdate(
-            spreadsheetId=self.spreadsheetId,
-            body=body
-        ).execute()
+        try:
+            sheet = sheets_service.spreadsheets().batchUpdate(
+                spreadsheetId=self.spreadsheetId,
+                body=body
+            ).execute()
+        except Exception as e:
+            logging.error('Exception occurred', exc_info=True)
+            raise Exception("Can't create a sheet. See logs.txt for more details")
 
-        pprint(sheet)
-        self.get_sheets()
+        logging.info(sheet)
+        self.update_sheet_list()
 
-    def get_sheets(self):
+    def delete_sheet(self, sheet_id: int):
+        self.update_sheet_list()
+
+        for sheet in self.sheet_list:
+            if sheet['properties']['sheetId'] == sheet_id:
+                break
+        else:
+            raise ValueError('There is no sheet with that id')
+
+        body = {'requests': [
+            {"deleteSheet":  {'sheetId': sheet_id}}]}
+
+        try:
+            sheet = sheets_service.spreadsheets().batchUpdate(
+                spreadsheetId=self.spreadsheetId,
+                body=body
+            ).execute()
+        except Exception as e:
+            logging.error('Exception occurred', exc_info=True)
+            raise Exception("Can't delete a sheet. See logs.txt for more details")
+
+        logging.info(sheet)
+        self.update_sheet_list()
+
+    def update_sheet_list(self):
         spreadsheet = sheets_service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
         sheet_list = spreadsheet.get('sheets')
         self.sheet_list = sheet_list
-        pprint(self.sheet_list)
 
     def check_id_was_provided(self):
         if not self.spreadsheetId:
@@ -158,7 +185,7 @@ class Spreadsheet:
             self.sheet_list = sheet_list
             return True
         except KeyError:
-            print('Invalid url')
+            logging.error('Invalid url')
             return False
         except Exception as e:
             logging.error("Exception occurred", exc_info=True)
@@ -176,10 +203,12 @@ class SpreadsheetManager:
         else:
             raise TypeError(f'expected {type(Spreadsheet())}, but got {type(spreadsheet)}')
 
-    def upload_csv(self, csv_file, left_corner_cell='A1'):
+    def upload_csv(self, csv_file, left_corner_cell='A1', sheet_name=None):
         rows = CsvTools.csv_read_rows(csv_file)
         rows_amount, col_amount = len(rows), len(rows[0])
         range_name = self._get_range(left_corner_cell, rows_amount, col_amount)
+        if sheet_name:
+            range_name = f'{sheet_name}!{range_name}'
         self.spreadsheet.update_data(rows, range_name)
 
     @staticmethod

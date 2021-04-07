@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+That module provides class and functions to provides other modules with useful
+"""
 import csv
 import logging
+import os
 
 logging.basicConfig(filename='logs.txt', format='[%(asctime)s] %(levelname)s:%(name)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
@@ -28,3 +33,8 @@ class CsvTools:
         file = open(filename, mode=mode, encoding='utf-8', newline='')
         csv_writer = csv.writer(file)
         return csv_writer
+
+
+def clean_logs():
+    if os.path.exists('logs.txt'):
+        os.remove('logs.txt')
