@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-That module provides class and functions to provides other modules with useful
+That module provides class and functions to provides other modules with useful methods, like:
+    - logging
+    - working with CSV files
+    - etc...
 """
 import csv
 import logging

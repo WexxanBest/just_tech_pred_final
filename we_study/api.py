@@ -9,6 +9,8 @@ import os
 
 import requests as rq
 
+from utils import (CsvTools, script_place)
+
 
 class API:
     """
@@ -22,20 +24,20 @@ class API:
         }
 
     # Getting list of all courses
-    def get_courses(self, cache=True) -> list:
+    def get_courses(self, cache=False) -> list:
         url = 'https://userapi.webinar.ru/v3/organization/courses'
         res = self._get_request(url, cache_filename='courses.json', use_cache=cache)
         return res['data']
 
     # Getting list of all groups
-    def get_groups(self, cache=True):
+    def get_groups(self, cache=False):
         url = 'https://userapi.webinar.ru/v3/organization/courses/groups'
         res = self._get_request(url, cache_filename='groups.json', use_cache=cache)
 
         return res
 
     # Getting information about course
-    def get_course_details(self, course_id: int, cache=True) -> dict:
+    def get_course_details(self, course_id: int, cache=False) -> dict:
         url = f'https://userapi.webinar.ru/v3/courses/{course_id}'
         res = self._get_request(url, use_cache=cache, cache_filename=f'course-{course_id}.json')
 
@@ -58,7 +60,7 @@ class API:
 
         return res['id']
 
-    def get_course_group_stat(self, course_id: int, group_id: int, cache=True):
+    def get_course_group_stat(self, course_id: int, group_id: int, cache=False):
         url = f'https://userapi.webinar.ru/v3/courses/{course_id}/groups/{group_id}/statistics'
         res = self._get_request(url, use_cache=cache, cache_filename=f'course-{course_id}-group-{group_id}.json')
 
@@ -70,8 +72,18 @@ class API:
                      json_frm: bool = True,
                      use_cache: bool = True,
                      cache_filename: str = '') -> Union[dict, rq.Response]:
+        """
+        Function just send GET-request to We Study API
 
-        print(__file__ + '/cache/' + cache_filename, os.path.exists(os.path.dirname(__file__) + '/cache/' + cache_filename))
+        :param url: some API url
+        :param headers: provide some custom headers. If not, than default will be used
+        :param json_frm: if True will turn Response instance in JSON format
+        :param use_cache: if True will save response to cache file
+        :param cache_filename: name of cache filename which futher will be get access to
+
+        :return: the Response instance or dict/json format data
+        """
+
         # load from cache if exist and it is allowed to use cache (use_cache = True)
         if json_frm and use_cache and cache_filename and \
                 os.path.exists(os.path.dirname(__file__) + '/cache/' + cache_filename):
@@ -126,4 +138,50 @@ class ApiManager(API):
     """
     def __init__(self, api_token: str):
         super().__init__(api_token)
+        self.courses = []
+        self._get_courses_as_list()
+        self._get_course_structure()
 
+    def _get_courses_as_list(self):
+        raw_courses = self.get_courses()
+        for course in raw_courses:
+            if not course['isPublish']:
+                continue
+            course_details = self.get_course_details(course['id'])
+            self.courses += [Course(course_details['id'],
+                                    course_details['name'],
+                                    [id['id'] for id in course_details['groups']])]
+
+    def _get_course_structure(self):
+        for course in self.courses:
+            for group_id in course.groups_id:
+                structure = self.get_course_group_stat(course.id, group_id)
+                pprint(structure)
+                lessons_data = structure[0]['lessonsPassing']
+                for lesson in lessons_data:
+                    course.lessons += [Lesson(lesson['type'],
+                                              lesson['name'],
+                                              lesson['id'])]
+
+
+class Course:
+    def __init__(self, course_id: int, name: str, groups_id: list):
+        self.id = course_id
+        self.name = name
+        self.groups_id = groups_id
+        self.lessons = []
+
+
+class Lesson:
+    def __init__(self, lesson_type: str, name: str, lesson_id: int):
+        self.lesson_type = lesson_type
+        self.name = name
+        self.lesson_id = lesson_id
+
+
+if __name__ == '__main__':
+    api = ApiManager('b540bd407852678c0af5b11105dcde14')
+    for course in api.courses:
+        print(course.id, course.name, course.groups_id, sep='\n')
+    pprint(api.courses[0].id)
+    pprint(api.courses[0].lessons[0].name)
