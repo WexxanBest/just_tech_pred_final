@@ -182,6 +182,9 @@ class Lesson:
 if __name__ == '__main__':
     api = ApiManager('b540bd407852678c0af5b11105dcde14')
     for course in api.courses:
-        print(course.id, course.name, course.groups_id, sep='\n')
-    pprint(api.courses[0].id)
-    pprint(api.courses[0].lessons[0].name)
+        print('COURSE DETAILS')
+        print(f'{course.id=}', f'{course.name=}', f'{course.groups_id=}', sep='\n')
+        print('\nLESSONS')
+        for lesson in course.lessons:
+            print(f'\n{lesson.lesson_id=}', f'{lesson.name}', f'{lesson.lesson_type}', sep='\n')
+
