@@ -4,7 +4,7 @@ That module provides class and functions to work with WE STUDY API and process o
 """
 import json
 from pprint import pprint
-from typing import Union
+from typing import Union, List
 import os
 
 import requests as rq
@@ -138,10 +138,11 @@ class ApiManager(API):
     """
     def __init__(self, api_token: str, use_cache=True):
         super().__init__(api_token)
-        self.courses = []
+        self.courses: List[Course] = []
+        self.use_cache = use_cache
+
         self._get_courses_as_list()
         self._get_course_structure()
-        self.use_cache = use_cache
 
     def _get_courses_as_list(self):
         """
@@ -168,6 +169,25 @@ class ApiManager(API):
                     course.lessons += [Lesson(lesson['type'],
                                               lesson['name'],
                                               lesson['id'])]
+
+    def get_courses_data(self, save_data_to_file=True, file: str = None) -> List[list]:
+        """
+        It saves all courses data to csv file
+        :param save_data_to_file: if True it will save data to csv file
+        :param file: filename where save to
+        """
+        if file is None:
+            file = script_place(__file__) + 'data/courses.csv'
+
+        rows = [['id', 'name', 'groups_id']]
+        for course in self.courses:
+            row = [course.id, course.name, course.groups_id]
+            rows += [row]
+
+        if save_data_to_file and file:
+            CsvTools.csv_write_rows(file=file, rows=rows)
+
+        return rows
 
 
 class Course:
@@ -204,3 +224,4 @@ if __name__ == '__main__':
         for lesson in course.lessons:
             print(f'\n{lesson.lesson_id=}', f'{lesson.name=}', f'{lesson.lesson_type=}', sep='\n')
 
+    api.get_courses_data()

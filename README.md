@@ -34,3 +34,7 @@ All dependencies can be installed by prompting:
   `student_generator.py`) 
   
 ## Examples
+### 
+```python
+
+```

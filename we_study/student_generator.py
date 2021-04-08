@@ -241,6 +241,7 @@ class MixedGroup(Group):
         excellent_result = (90, 100)
 
         if last_score:
+            # Get student's "intellect" and randomly create points for it
             if last_score in list(range(*worse_result)):
                 points = rd.randint(*worse_result)
             elif last_score in list(range(*average_result)):
@@ -248,6 +249,7 @@ class MixedGroup(Group):
             else:
                 points = rd.randint(*excellent_result)
         else:
+            # Randomly define student's "intellect"
             points = rd.choice([rd.randint(*worse_result),
                                 rd.randint(*average_result),
                                 rd.randint(*excellent_result)])
