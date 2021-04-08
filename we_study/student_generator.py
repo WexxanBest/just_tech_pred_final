@@ -17,6 +17,7 @@ class StudentGenerator:
     """
     Main class in that module that do all the stuff to generate students
     """
+
     def __init__(self, students_amount: int, groups: list, courses_name_list: list):
         self.students_amount = students_amount
         self.groups = groups
@@ -31,6 +32,7 @@ class StudentGenerator:
         """
         if headers is None:
             headers = default_headers
+
         for course in self.courses:
             for group in self.groups:
                 course_group_rows = [headers]
@@ -42,34 +44,59 @@ class StudentGenerator:
                 for student in students:
                     student_row = [student.student_id]
 
-                    first_points = group.generate_points()
+                    student_points = self._generate_student_points(group,
+                                                                   course.lessons,
+                                                                   course.webinars,
+                                                                   course.tests)
 
-                    lesson_attendance_percent = self._get_attendance(first_points, course.lessons)
+                    lesson_attendance_percent = student_points[0]
+                    webinar_attendance_percent = student_points[1]
+                    tests_attendance_percent = student_points[2]
+                    test_average_score = student_points[3]
 
-                    webinar_attendance_percent = self._get_attendance(
-                        group.generate_points(last_score=first_points),
-                        course.webinars)
-
-                    tests_attendance_percent = self._get_attendance(
-                        group.generate_points(last_score=first_points),
-                        course.tests)
-
-                    # Checks if 0 tests was solved
-                    if tests_attendance_percent == 0:
-                        test_average_score = 0
-                    else:
-                        test_average_score = group.generate_points(last_score=first_points)
-
-                    student_row += [lesson_attendance_percent]
-                    student_row += [webinar_attendance_percent]
-                    student_row += [tests_attendance_percent]
-                    student_row += [test_average_score]
+                    student_row = student_row + [lesson_attendance_percent,
+                                                 webinar_attendance_percent,
+                                                 tests_attendance_percent,
+                                                 test_average_score]
 
                     course_group_rows += [student_row]
 
                 print(course.name, group.type)
                 pprint(course_group_rows)
                 self._write_rows(course_group_rows, course.name, group.type)
+
+    def _generate_student_points(self, group, lessons_amount: int, webinars_amount: int, tests_amount: int):
+        """
+        It generates points for lessons/webinars/tests of a student according to his group type
+
+        :param group: Group instance to generate points
+        :param lessons_amount: amount of lessons of a course
+        :param webinars_amount: amount of webinars of a course
+        :param tests_amount: amount of tests of a course
+        :return: tuple of points for lessons/webinars/tests
+        """
+        first_points = group.generate_points()
+
+        lesson_attendance_percent = self._get_attendance(first_points, lessons_amount)
+
+        webinar_attendance_percent = self._get_attendance(
+            group.generate_points(last_score=first_points),
+            webinars_amount)
+
+        tests_attendance_percent = self._get_attendance(
+            group.generate_points(last_score=first_points),
+            tests_amount)
+
+        # Checks if 0 tests was solved
+        if tests_attendance_percent == 0:
+            test_average_score = 0
+        else:
+            test_average_score = group.generate_points(last_score=first_points)
+
+        return (lesson_attendance_percent,
+                webinar_attendance_percent,
+                tests_attendance_percent,
+                test_average_score)
 
     def get_students_courses(self):
         pass
@@ -88,13 +115,13 @@ class StudentGenerator:
             CsvTools.sort_rows_by('id', rows)
         )
 
-    def _get_available_students(self, course_name: str, group_size: int):
+    def _get_available_students(self, course_name: str, group_size: int) -> list:
         """
         Get all students who are not in groups yet
 
         :param course_name: name of the concrete course
-        :param group_size:
-        :return:
+        :param group_size: in another words it is how many students should be retrieved
+        :return: list of Student instances of all available students
         """
         available_students = []
         students = rd.sample(self.students, k=len(self.students))
@@ -109,11 +136,20 @@ class StudentGenerator:
         return available_students
 
     def _generate_students(self):
+        """
+        It generates Students instances to work with later
+
+        """
         self.students = []
         for student_id in range(self.students_amount):
             self.students += [Student(student_id)]
 
     def _generated_lessons(self, courses_name_lst):
+        """
+        It generates amount of lessons, tests and webinars for all courses
+
+        :param courses_name_lst: name of course to generate lesson for
+        """
         self.courses = []
         for course_name in courses_name_lst:
             self.courses += [Course(
@@ -123,14 +159,27 @@ class StudentGenerator:
                 rd.randint(3, 7)
             )]
 
-    def _get_attendance(self, group_points: int, lessons_amount: int):
+    def _get_attendance(self, group_points: int, lessons_amount: int) -> int:
+        """
+        It counts the attendance of lessons/webinar/tests
+
+        :param group_points: random generated percent
+        :param lessons_amount: amount of all lessons/webinars/tests in the course
+        :return: percent of completed lessons/webinar/tests against all lessons/webinar/tests
+        """
         attendance_can_be = []
         for i in range(lessons_amount + 1):
             attendance_can_be += [round((i / lessons_amount) * 100)]
 
         return min(attendance_can_be, key=lambda x: abs(x - group_points))
 
-    def _get_amount_of_finished(self, group_points: int, lessons_amount: int):
+    def _get_amount_of_finished(self, group_points: int, lessons_amount: int) -> int:
+        """
+
+        :param group_points: random generated percent
+        :param lessons_amount: amount of all lessons/webinars/tests in the course
+        :return: exact amount of completed lessons/webinar/tests
+        """
         attendance_can_be = []
         for i in range(lessons_amount + 1):
             attendance_can_be += [round((i / lessons_amount) * 100)]

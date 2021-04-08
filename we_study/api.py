@@ -157,6 +157,9 @@ class ApiManager(API):
                                     [id['id'] for id in course_details['groups']])]
 
     def _get_course_structure(self):
+        """
+        Add lessons information to all Course instances
+        """
         for course in self.courses:
             for group_id in course.groups_id:
                 structure = self.get_course_group_stat(course.id, group_id, cache=self.use_cache)
