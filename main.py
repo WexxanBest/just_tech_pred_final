@@ -6,8 +6,7 @@ from pprint import pprint
 import os
 
 from google_sheets.google_sheets import (Spreadsheet, SpreadsheetManager, Types)
-from we_study.api import (API)
-
+from we_study.api import (ApiManager)
 
 API_KEY = 'b540bd407852678c0af5b11105dcde14'
 SPREADSHEET_ID = '17bYk2QPRsuW6cP5kBpKzU5h6aE_RS1Vw1LPadnII0ms'
@@ -81,5 +80,4 @@ def clean_and_delete_sheets():
 if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
-
-    load_gen_students_to_spreadsheet()
+    we_study_manager = ApiManager(API_KEY)

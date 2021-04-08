@@ -136,14 +136,18 @@ class ApiManager(API):
     """
     Class provides easy-to-use methods to work with API class which work with We Study API
     """
-    def __init__(self, api_token: str):
+    def __init__(self, api_token: str, use_cache=True):
         super().__init__(api_token)
         self.courses = []
         self._get_courses_as_list()
         self._get_course_structure()
+        self.use_cache = use_cache
 
     def _get_courses_as_list(self):
-        raw_courses = self.get_courses()
+        """
+        Collecting all courses data an save it as a list of Course instances
+        """
+        raw_courses = self.get_courses(cache=self.use_cache)
         for course in raw_courses:
             if not course['isPublish']:
                 continue
@@ -155,8 +159,7 @@ class ApiManager(API):
     def _get_course_structure(self):
         for course in self.courses:
             for group_id in course.groups_id:
-                structure = self.get_course_group_stat(course.id, group_id)
-                pprint(structure)
+                structure = self.get_course_group_stat(course.id, group_id, cache=self.use_cache)
                 lessons_data = structure[0]['lessonsPassing']
                 for lesson in lessons_data:
                     course.lessons += [Lesson(lesson['type'],

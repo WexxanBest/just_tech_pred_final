@@ -24,6 +24,11 @@ class StudentGenerator:
         self._generate_students()
 
     def main(self, headers=None):
+        """
+        It's the main function that generates all students and save them to CSV table
+
+        :param headers: custom headers
+        """
         if headers is None:
             headers = default_headers
         for course in self.courses:
@@ -49,6 +54,7 @@ class StudentGenerator:
                         group.generate_points(last_score=first_points),
                         course.tests)
 
+                    # Checks if 0 tests was solved
                     if tests_attendance_percent == 0:
                         test_average_score = 0
                     else:
@@ -68,13 +74,28 @@ class StudentGenerator:
     def get_students_courses(self):
         pass
 
-    def _write_rows(self, rows: list, course_name: str, group_type: str):
+    @staticmethod
+    def _write_rows(rows: list, course_name: str, group_type: str):
+        """
+        Just write students data to CSV file
+
+        :param rows: students data in rows format (list of lists)
+        :param course_name: name of the course where students are
+        :param group_type: type of group where students are
+        """
         CsvTools.csv_write_rows(
             script_place(__file__) + 'generated_students/' + '_'.join(course_name.split()) + '_' + group_type + '.csv',
             CsvTools.sort_rows_by('id', rows)
         )
 
     def _get_available_students(self, course_name: str, group_size: int):
+        """
+        Get all students who are not in groups yet
+
+        :param course_name: name of the concrete course
+        :param group_size:
+        :return:
+        """
         available_students = []
         students = rd.sample(self.students, k=len(self.students))
         for student in students:
