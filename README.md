@@ -32,3 +32,5 @@ All dependencies can be installed by prompting:
 - In `we_study` folder there are scripts to work with We Study API
   (`api.py`) and process obtained data (`data_processing.py`, 
   `student_generator.py`) 
+  
+## Examples

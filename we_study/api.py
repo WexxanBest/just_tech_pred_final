@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-That module provides class and functions to work with WE STUDY API and process data
+That module provides class and functions to work with WE STUDY API and process obtained data
 """
 import json
 from pprint import pprint
@@ -156,6 +156,7 @@ class ApiManager(API):
         for course in self.courses:
             for group_id in course.groups_id:
                 structure = self.get_course_group_stat(course.id, group_id)
+                pprint(structure)
                 lessons_data = structure[0]['lessonsPassing']
                 for lesson in lessons_data:
                     course.lessons += [Lesson(lesson['type'],
@@ -179,8 +180,13 @@ class Lesson:
 
 
 class Student:
-    def __init__(self):
-        pass
+    def __init__(self, first_name: str, last_name: str, contact_id: int, student_id: int, email: str):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.contact_id = contact_id
+        self.email = email
+        self.student_id = student_id
+        self.user_id: int
 
 
 if __name__ == '__main__':

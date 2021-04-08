@@ -176,14 +176,20 @@ class Spreadsheet:
             logging.error('Exception occurred', exc_info=True)
             raise Exception("Can't update data. See logs.txt ")
 
+        logging.info(f'{result.get("updatedCells")} cells updated.')
         print(f'{result.get("updatedCells")} cells updated.')
 
-    def clear_data(self, range_name: str):
+    def clear_data(self, range_name: str, sheet_name: str = None):
         """
         It clears data in certain range of cells in certain sheet
 
+        :param sheet_name: name of sheet
         :param range_name: can be like "A1:B2" or "sheet_name!A1:B2"
         """
+
+        if sheet_name:
+            range_name = f'{sheet_name}!{range_name}'
+
         try:
             request = sheets_service.spreadsheets().values().clear(
                 spreadsheetId=self.spreadsheetId,
@@ -301,6 +307,9 @@ class SpreadsheetManager:
     to deal with google sheets
     """
     def __init__(self, spreadsheet: Spreadsheet):
+        """
+        :param spreadsheet: should be given
+        """
         if isinstance(spreadsheet, Spreadsheet):
             self.spreadsheet = spreadsheet
         else:
@@ -315,6 +324,8 @@ class SpreadsheetManager:
         :param sheet_name: name of sheet to upload csv to. If sheet doesn't exist it will raise error. Default is None
         :param create_new_sheet: if True, it will create a new sheet with "sheet_name" name. If sheet already exists
         it will raise an error. Default is False
+
+        :return: updated range
         """
         if create_new_sheet:
             self.spreadsheet.add_sheet(title=sheet_name)
@@ -328,6 +339,8 @@ class SpreadsheetManager:
             range_name = f'{sheet_name}!{range_name}'
 
         self.spreadsheet.update_data(rows, range_name)
+
+        return range_name
 
     @staticmethod
     def _get_range(left_corner_cell: str, rows: int, cols: int) -> str:

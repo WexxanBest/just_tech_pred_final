@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Main file
+Main script where all functions called from
 """
 from pprint import pprint
 import os
@@ -55,9 +55,6 @@ def load_gen_students_to_spreadsheet():
 
     student_files = os.listdir(folder)
 
-    manager.upload_csv(folder + student_files[0])
-    student_files.pop(0)
-
     for student_file in student_files:
         if not student_file.endswith('.csv'):
             continue
@@ -69,22 +66,20 @@ def load_gen_students_to_spreadsheet():
         except:
             pass
 
+        spreadsheet.clear_data('A1:E26', sheet_name=sheet_name)
         manager.upload_csv(folder + student_file, sheet_name=sheet_name)
 
 
-def clean_sheets():
+def clean_and_delete_sheets():
     for i in range(1, 12):
         try:
             spreadsheet.delete_sheet(i)
         except:
             pass
 
-    spreadsheet.clear_data('A1:F100')
-
 
 if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
 
-    # spreadsheet.add_sheet(title='Students')
-    manager.upload_csv('we_study/data/students_at_courses.csv', sheet_name='Students')
+    # load_gen_students_to_spreadsheet()
