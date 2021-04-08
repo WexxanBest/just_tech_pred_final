@@ -3,6 +3,7 @@
 That module provides class and functions to work with Google Sheets API
 """
 import os
+from typing import List
 
 import apiclient
 import httplib2
@@ -40,7 +41,7 @@ class Spreadsheet:
         else:
             self.get_spreadsheet_by_id(spreadsheet_id)
 
-        self.sheet_list = []
+        self.sheet_list: List[dict] = []
 
     def create_spreadsheet(self, sheets=None):
         """
@@ -151,7 +152,7 @@ class Spreadsheet:
         print(f'{len(rows)} rows retrieved.')
         return rows
 
-    def update_data(self, data: list, range_name: str, value_input_option: str = 'USER_ENTERED', sheet_name: str = None):
+    def update_data(self, data: List[list], range_name: str, value_input_option: str = 'USER_ENTERED', sheet_name: str = None):
         """
         It updates data in certain range of cells in certain sheet
 
