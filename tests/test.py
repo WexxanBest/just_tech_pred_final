@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""
+That module provides class and functions to run unit-tests to check if all work right
+"""
 import unittest
 
 from google_sheets.google_sheets import (Spreadsheet, SpreadsheetManager)
