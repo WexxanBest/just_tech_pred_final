@@ -190,6 +190,8 @@ code below will generate data set of students and save it to
 `/generated_students` folder
 ```python
 from we_study.student_generator import (StudentGenerator, BadGroup, GoodGroup, ExcellentGroup, MixedGroup)
+
+
 groups = [
     BadGroup(),
     GoodGroup(),
