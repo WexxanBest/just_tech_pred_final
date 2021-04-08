@@ -31,10 +31,14 @@ class CsvTools:
     def csv_writer(filename: str, mode: str = 'w'):
         """
 
-        :param filename:
-        :param mode:
-        :return:
+        :param filename: relative/absolute path to file to work with
+        :param mode: can be 'w' or 'a'. Default is 'w'
+
+        :return: csv.writer instance
         """
+        if mode not in ['w', 'a']:
+            raise ValueError(f"Can't open file in that mode. Only can in 'w' or 'a', but {mode} was given")
+
         file = open(filename, mode=mode, encoding='utf-8', newline='')
         csv_writer = csv.writer(file)
         return csv_writer
@@ -42,7 +46,7 @@ class CsvTools:
     @staticmethod
     def sort_rows_by(field_name: str, rows: list) -> list:
         """
-        It sorts list of lists which called 'rows' in that case
+        It sorts list of lists (which called 'rows' in that case) by certain "field_name" in first row (header row)
 
         :param field_name: field/column name to sort by
         :param rows: rows to sort
@@ -51,8 +55,8 @@ class CsvTools:
         if field_name not in rows[0]:
             raise ValueError(f'There is "{field_name}" field in rows')
 
-        col = rows[0].index(field_name)
-        sorted_col = sorted([field[col] for field in rows[1:]])
+        col = rows[0].index(field_name)  # get column index of "field_name"
+        sorted_col = sorted([field[col] for field in rows[1:]])  # get all its members and sort them
         sorted_rows = []
 
         for field_value in sorted_col:
@@ -69,7 +73,7 @@ class CsvTools:
 def clean_logs():
     """
     It just deletes 'logs.txt' file
-    :return: nothing
+
     """
     log_file = script_place(__file__) + 'logs.txt'
     if os.path.exists(log_file):
@@ -79,7 +83,7 @@ def clean_logs():
 def script_place(magic_file) -> str:
     """
     :param magic_file: just give __file__ to that and it will work
-    :return: the directory where the script file is placed
+    :return: the absolute path to directory where the script file is placed
     """
     return os.path.dirname(magic_file) + '/'
 

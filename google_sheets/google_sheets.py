@@ -151,7 +151,7 @@ class Spreadsheet:
         print(f'{len(rows)} rows retrieved.')
         return rows
 
-    def update_data(self, data: list, range_name: str, value_input_option: str = 'USER_ENTERED'):
+    def update_data(self, data: list, range_name: str, value_input_option: str = 'USER_ENTERED', sheet_name: str = None):
         """
         It updates data in certain range of cells in certain sheet
 
@@ -161,6 +161,9 @@ class Spreadsheet:
         so, for example, '=5+3' would be just '8'. While 'RAW' mode will show like it is: '=5+3'
         """
         self.check_id_was_provided()
+
+        if sheet_name:
+            range_name += f'{sheet_name}!{range_name}'
 
         values = data
         body = {
@@ -221,7 +224,7 @@ class Spreadsheet:
                 spreadsheetId=self.spreadsheetId,
                 body=body
             ).execute()
-        except Exception as e:
+        except:
             logging.error('Exception occurred', exc_info=True)
             raise Exception("Can't create a sheet. See logs.txt for more details")
 
@@ -230,7 +233,7 @@ class Spreadsheet:
 
     def delete_sheet(self, sheet_id: int):
         """
-        It deletes sheet from Spreadsheet
+        It deletes sheet with "sheet_id" ID from Spreadsheet
 
         :param sheet_id: id of concrete sheet
         """
@@ -250,7 +253,7 @@ class Spreadsheet:
                 spreadsheetId=self.spreadsheetId,
                 body=body
             ).execute()
-        except Exception as e:
+        except:
             logging.error('Exception occurred', exc_info=True)
             raise Exception("Can't delete a sheet. See logs.txt for more details")
 
@@ -308,8 +311,9 @@ class SpreadsheetManager:
     """
     def __init__(self, spreadsheet: Spreadsheet):
         """
-        :param spreadsheet: should be given
+        :param spreadsheet: instance of Spreadsheet class should be given. Otherwise, TypeError will be raised
         """
+
         if isinstance(spreadsheet, Spreadsheet):
             self.spreadsheet = spreadsheet
         else:
@@ -344,12 +348,23 @@ class SpreadsheetManager:
 
     @staticmethod
     def _get_range(left_corner_cell: str, rows: int, cols: int) -> str:
+        """
+
+        :param left_corner_cell: should be like "A1" format
+        :param rows: rows amount of csv file
+        :param cols: columns amount of csv file
+
+        :return: cell range in "A1:B2" format
+        """
         start_cell = left_corner_cell
         end_cell = chr(ord(start_cell[0])+cols) + str(int(start_cell[1]) + rows)
         return start_cell + ':' + end_cell
 
 
 class Types:
+    """
+    That class helps not to type some options by hand
+    """
     class Dimension:
         ROWS = 'ROWS'
         COLUMNS = 'COLUMNS'

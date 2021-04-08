@@ -14,6 +14,9 @@ default_courses_name = ['Русский язык Гр1', 'Математика �
 
 
 class StudentGenerator:
+    """
+    Main class in that module that do all the stuff to generate students
+    """
     def __init__(self, students_amount: int, groups: list, courses_name_list: list):
         self.students_amount = students_amount
         self.groups = groups
@@ -34,22 +37,27 @@ class StudentGenerator:
                 for student in students:
                     student_row = [student.student_id]
 
-                    if group.type == 'mixed':
-                        first_points = group.generate_points()
-                        student_row += [self._get_attendance(first_points, course.lessons)]
-                        student_row += [self._get_attendance(group.generate_points(last_score=first_points),
-                                                             course.webinars)]
-                        student_row += [self._get_attendance(group.generate_points(last_score=first_points),
-                                                             course.tests)]
-                        student_row += [group.generate_points(last_score=first_points)]
+                    first_points = group.generate_points()
 
-                        course_group_rows += [student_row]
-                        continue
+                    lesson_attendance_percent = self._get_attendance(first_points, course.lessons)
 
-                    student_row += [self._get_attendance(group.generate_points(), course.lessons)]
-                    student_row += [self._get_attendance(group.generate_points(), course.webinars)]
-                    student_row += [self._get_attendance(group.generate_points(), course.tests)]
-                    student_row += [group.generate_points()]
+                    webinar_attendance_percent = self._get_attendance(
+                        group.generate_points(last_score=first_points),
+                        course.webinars)
+
+                    tests_attendance_percent = self._get_attendance(
+                        group.generate_points(last_score=first_points),
+                        course.tests)
+
+                    if tests_attendance_percent == 0:
+                        test_average_score = 0
+                    else:
+                        test_average_score = group.generate_points(last_score=first_points)
+
+                    student_row += [lesson_attendance_percent]
+                    student_row += [webinar_attendance_percent]
+                    student_row += [tests_attendance_percent]
+                    student_row += [test_average_score]
 
                     course_group_rows += [student_row]
 
@@ -90,7 +98,7 @@ class StudentGenerator:
             self.courses += [Course(
                 course_name,
                 rd.randint(4, 10),
-                rd.randint(1, 4),
+                rd.randint(2, 4),
                 rd.randint(3, 7)
             )]
 
@@ -100,6 +108,14 @@ class StudentGenerator:
             attendance_can_be += [round((i / lessons_amount) * 100)]
 
         return min(attendance_can_be, key=lambda x: abs(x - group_points))
+
+    def _get_amount_of_finished(self, group_points: int, lessons_amount: int):
+        attendance_can_be = []
+        for i in range(lessons_amount + 1):
+            attendance_can_be += [round((i / lessons_amount) * 100)]
+
+        item = min(attendance_can_be, key=lambda x: abs(x - group_points))
+        return attendance_can_be.index(item)
 
 
 class Course:
@@ -120,49 +136,36 @@ class Group:
     def __init__(self, group_type: str):
         self.type = group_type
         self.group_size = rd.randint(10, 25)
+        self.points_range = (0, 100)
 
-    @staticmethod
-    def generate_points():
-        points = rd.randint(0, 100)
+    def generate_points(self, last_score=None):
+        points = rd.randint(*self.points_range)
         return points
 
 
 class BadGroup(Group):
     def __init__(self):
         super().__init__('bad')
-
-    @staticmethod
-    def generate_points():
-        points = rd.randint(0, 50)
-        return points
+        self.points_range = (0, 50)
 
 
 class GoodGroup(Group):
     def __init__(self):
         super().__init__('good')
-
-    @staticmethod
-    def generate_points():
-        points = rd.randint(50, 85)
-        return points
+        self.points_range = (50, 85)
 
 
 class ExcellentGroup(Group):
     def __init__(self):
         super().__init__('excellent')
-
-    @staticmethod
-    def generate_points():
-        points = rd.randint(85, 100)
-        return points
+        self.points_range = (85, 100)
 
 
 class MixedGroup(Group):
     def __init__(self):
         super().__init__('mixed')
 
-    @staticmethod
-    def generate_points(last_score=None):
+    def generate_points(self, last_score=None):
         worse_result = (0, 15)
         average_result = (15, 90)
         excellent_result = (90, 100)
