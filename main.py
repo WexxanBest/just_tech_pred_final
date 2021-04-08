@@ -80,7 +80,3 @@ def clean_and_delete_sheets():
 if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
-    we_study_manager = ApiManager(API_KEY)
-    rows = we_study_manager.get_courses_data()
-    rows = spreadsheet.get_data_by_range(range_name='A27:B27')
-    pprint(rows)

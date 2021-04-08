@@ -62,6 +62,22 @@ class Spreadsheet:
         print('Spreadsheet was created at https://docs.google.com/spreadsheets/d/' + self.spreadsheetId)
         return self
 
+    def delete_spreadsheet(self, spreadsheetId: str):
+        """
+        You can delete a spreadsheet. It's dangerous! It can't be undone
+
+        :param spreadsheetId: you should provide it to be sure that you delete right spreadsheet
+        """
+        if spreadsheetId == self.spreadsheetId:
+            try:
+                file = drive_service.files().delete(fileId=spreadsheetId).execute()
+                logging.info(file)
+            except:
+                logging.error('Exception occurred!', exc_info=True)
+                raise Exception("Can't delete spreadsheet. See 'logs.txt' for more info")
+        else:
+            raise ValueError("Can't delete spreadsheet. Given Spreadsheet ID is different from given on init")
+
     def get_spreadsheet_by_id(self, spreadsheet_id: str):
         """
         It connects to Google Sheet spreadsheet by its Spreadsheet ID
