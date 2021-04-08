@@ -81,3 +81,5 @@ if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
     we_study_manager = ApiManager(API_KEY)
+    rows = we_study_manager.get_lessons_data()
+    print(rows)

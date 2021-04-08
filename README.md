@@ -25,16 +25,49 @@ All dependencies can be installed by prompting:
 ## Project structure
 
 - `main.py` script contains main functions to call all project methods
-- `utils.py` script contains additional functions which provide other modules with useful functional
-- `Dockerfile` is used to create docker image of a project to easily deploy it
-- In `/google_sheets` folder there are scripts to work with Google Sheets API (`google_sheets.py`)
+- `utils.py` script contains additional functions which provide other modules with useful functional 
+  (like logging, saving data to csv, etc.)
+- `Dockerfile` is used to create docker image of a project to easily deploy it 
+  (Just run `docker image build [OPTIONS] .`)
+  
+
+- In `/google_sheets` folder there are scripts to work with Google Sheets API
+  
+  - `google_sheets.py` contains all essential methods to work with Google Sheets API
+  - `keys.json` - credentials to authorize to Google Sheets API (they are empty
+     for security reasons)
+    
+
 - In `/test` folder there are scripts with unit-tests and test data to make them work
+  
+  - Just run `test.py` to run all the tests
+  
+
 - In `we_study` folder there are scripts to work with We Study API
-  (`api.py`) and process obtained data (`data_processing.py`, 
-  `student_generator.py`) 
+  and process obtained data
+  
+  - `api.py` contains methods to work with We Study API
+  - `data_processing.py` contains methods to process data
+  - `student_generator.py`contains methods to generate students
+    groups with different parameters
+  - `/cache` folder contains cached data to reduce amount of
+    requests to the server
+  - `/data` folder contains row and processed data to work with
+    it later
+  - `/generated_students` folder contains generated students 
+  data sets 
   
 ## Examples
-### 
+### Getting data from We Study API
+
 ```python
+from we_study.api import ApiManager
+
+API_KEY = 'your-API-key-here'
+
+if __name__ == '__main__':
+    manager = ApiManager(API_KEY)
+    courses = manager.get_courses_data(save_data_to_file=True,
+                                       file='data/courses.csv')
 
 ```

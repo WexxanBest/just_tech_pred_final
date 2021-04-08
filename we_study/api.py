@@ -178,7 +178,8 @@ class ApiManager(API):
         """
         It returns all courses data and save it to csv file if needed
         :param save_data_to_file: if True it will save data to csv file
-        :param file: filename where to save adata
+        :param file: filename where to save data
+        :return: rows of courses data. One courses - one row
         """
         if file is None:
             file = script_place(__file__) + 'data/courses.csv'
@@ -193,13 +194,55 @@ class ApiManager(API):
 
         return rows
 
+    def get_lessons_data(self, save_data_to_file=True, file: str = None) -> List[list]:
+        """
+        It returns all courses data and save it to csv file if needed
+        :param save_data_to_file: if True it will save data to csv file
+        :param file: filename where to save data
+        :return: rows of courses data. One courses - one row
+        """
+        if file is None:
+            file = script_place(__file__) + 'data/lessons.csv'
+
+        rows = [['id', 'name', 'type', 'course name']]
+        for course in self.courses:
+            for lesson in course.lessons:
+                row = [lesson.lesson_id, lesson.name, lesson.lesson_type, course.name]
+                rows += [row]
+
+        if save_data_to_file and file:
+            CsvTools.csv_write_rows(file=file, rows=rows, sort=True, sort_field='id')
+
+        return rows
+
+    def get_students_data(self, save_data_to_file=True, file: str = None) -> List[list]:
+        """
+        It returns all courses data and save it to csv file if needed
+        :param save_data_to_file: if True it will save data to csv file
+        :param file: filename where to save data
+        :return: rows of students data. One students - one row
+        """
+        if file is None:
+            file = script_place(__file__) + 'data/lessons.csv'
+
+        rows = [['id', 'name', 'type', 'course name']]
+        for course in self.courses:
+            for lesson in course.lessons:
+                row = [lesson.lesson_id, lesson.name, lesson.lesson_type, course.name]
+                rows += [row]
+
+        if save_data_to_file and file:
+            CsvTools.csv_write_rows(file=file, rows=rows)
+
+        return rows
+
 
 class Course:
     def __init__(self, course_id: int, name: str, groups_id: list):
         self.id = course_id
         self.name = name
-        self.groups_id = groups_id
-        self.lessons = []
+        self.groups_id: list = groups_id
+        self.lessons: List[Lesson] = []
 
 
 class Lesson:
@@ -229,3 +272,4 @@ if __name__ == '__main__':
             print(f'\n{lesson.lesson_id=}', f'{lesson.name=}', f'{lesson.lesson_type=}', sep='\n')
 
     api.get_courses_data()
+    api.get_lessons_data()

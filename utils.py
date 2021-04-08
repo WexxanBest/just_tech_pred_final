@@ -12,11 +12,23 @@ import os
 
 class CsvTools:
     @staticmethod
-    def csv_write_rows(file: str, rows: list, headers: list = None, mode: str = 'w'):
+    def csv_write_rows(file: str, rows: list, headers: list = None, mode='w', sort=False, sort_field: str = None):
+        """
+        :param file: file to write rows to
+        :param rows: rows to write
+        :param headers: if there are no headers in rows you can provide them. Default is None
+        :param mode: can be 'a' (appends rows to existing file) or 'w' (creates new or rewrites file). Default is 'w'
+        :param sort: if True it will sort rows automatically. But 'sort_field' should be provided. Default is 'w'
+        :param sort_field: field to sort rows by. Default is None
+        """
         with open(file, mode=mode, encoding='utf-8', newline='') as file:
             csv_writer = csv.writer(file)
             if headers:
                 csv_writer.writerow(headers)
+
+            if sort and sort_field:
+                rows = CsvTools.sort_rows_by(field_name=sort_field, rows=rows)
+
             csv_writer.writerows(rows)
 
     @staticmethod
