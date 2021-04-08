@@ -137,6 +137,10 @@ class ApiManager(API):
     Class provides easy-to-use methods to work with API class which work with We Study API
     """
     def __init__(self, api_token: str, use_cache=True):
+        """
+        :param api_token: API token to access We Study API
+        :param use_cache: if True, it will save data to cache and get data from it. Default is True
+        """
         super().__init__(api_token)
         self.courses: List[Course] = []
         self.use_cache = use_cache
@@ -172,9 +176,9 @@ class ApiManager(API):
 
     def get_courses_data(self, save_data_to_file=True, file: str = None) -> List[list]:
         """
-        It saves all courses data to csv file
+        It returns all courses data and save it to csv file if needed
         :param save_data_to_file: if True it will save data to csv file
-        :param file: filename where save to
+        :param file: filename where to save adata
         """
         if file is None:
             file = script_place(__file__) + 'data/courses.csv'
@@ -206,13 +210,13 @@ class Lesson:
 
 
 class Student:
-    def __init__(self, first_name: str, last_name: str, contact_id: int, student_id: int, email: str):
+    def __init__(self, first_name: str, last_name: str, contact_id: int, student_id: int, email: str, user_id: int):
         self.first_name = first_name
         self.last_name = last_name
         self.contact_id = contact_id
         self.email = email
         self.student_id = student_id
-        self.user_id: int
+        self.user_id = user_id
 
 
 if __name__ == '__main__':
