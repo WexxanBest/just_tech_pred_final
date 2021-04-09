@@ -148,7 +148,7 @@ class Spreadsheet:
         self.check_id_was_provided()
 
         if sheet_name:
-            range_name += f'{sheet_name}!{range_name}'
+            range_name = f'{sheet_name}!{range_name}'
 
         try:
             result = sheets_service.spreadsheets().values().get(
@@ -362,6 +362,11 @@ class SpreadsheetManager:
         self.spreadsheet.update_data(rows, range_name)
 
         return range_name
+
+    def download_as_csv(self, csv_file: str, range_name: str, sheet_name=None):
+        data = self.spreadsheet.get_data_by_range(range_name=range_name, sheet_name=sheet_name)
+
+        CsvTools.csv_write_rows(csv_file, data, sort=True, sort_field='id')
 
     @staticmethod
     def _get_range(left_corner_cell: str, rows: int, cols: int) -> str:

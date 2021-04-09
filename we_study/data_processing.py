@@ -40,9 +40,9 @@ def get_user_courses():
         student_row = [int(student_id)]
         for course in courses:
             if course in students[student_id]:
-                student_row += [True]
+                student_row += [1]
             else:
-                student_row += [False]
+                student_row += [0]
 
         rows += [student_row]
 

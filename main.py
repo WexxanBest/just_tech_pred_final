@@ -56,6 +56,21 @@ def load_gen_students_to_spreadsheet():
         manager.upload_csv(folder + student_file, sheet_name=sheet_name)
 
 
+def download_students_from_google_sheet():
+    folder = 'we_study/generated_students/'
+
+    student_files = os.listdir(folder)
+    range_name = 'A1:E26'
+
+    for student_file in student_files:
+        if not student_file.endswith('.csv'):
+            continue
+
+        sheet_name = student_file[:-4]
+
+        manager.download_as_csv(folder + student_file, range_name=range_name, sheet_name=sheet_name)
+
+
 def clean_and_delete_sheets():
     for i in range(1, 12):
         try:
@@ -67,4 +82,5 @@ def clean_and_delete_sheets():
 if __name__ == '__main__':
     spreadsheet = Spreadsheet(SPREADSHEET_ID)
     manager = SpreadsheetManager(spreadsheet)
-    spreadsheet_test()
+    manager.upload_csv('we_study/data/students_at_courses.csv', sheet_name='Students')
+    # download_students_from_google_sheet()
