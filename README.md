@@ -26,7 +26,6 @@ All dependencies can be installed by prompting:
 - `Dockerfile` is used to create docker image of a project to easily deploy it 
   
     - Just run `docker image build [OPTIONS] .` to create docker image
-  
 
 - In `/google_sheets` folder there are scripts to work with Google Sheets API
   
@@ -204,3 +203,15 @@ if __name__ == '__main__':
     generator = StudentGenerator(students_amount=100, groups=groups, courses_name_list=courses)
     generator.main()
 ```
+
+## Docker usage
+You can run `docker build -t python-tech-pred .` to create image. 
+Then run `docker run -it --rm --name tech-pred python-tech-pred` to start container.
+
+If you run that without making changes, the output will be:
+```
+Spreadsheet at https://docs.google.com/spreadsheets/d/{your-spreadsheet-id}
+0 rows retrieved.
+[]
+```
+Or it will output rows data if they were in spreadsheet
